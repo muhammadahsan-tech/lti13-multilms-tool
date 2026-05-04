@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
+const crypto = require("crypto");
+const platforms = require("./config/platforms");
 require("dotenv").config();
 
 const app = express();
@@ -31,15 +33,7 @@ app.get("/health", (req, res) => {
 
 // Step 1 of LTI 1.3 launch: OIDC login initiation
 app.post("/lti/login", (req, res) => {
-  console.log("LTI Login Request:", req.body);
-
-  const {
-    iss,
-    login_hint,
-    target_link_uri,
-    lti_message_hint,
-    client_id,
-  } = req.body;
+  const { iss, login_hint, target_link_uri, lti_message_hint, client_id } = req.body;
 
   if (!iss || !login_hint || !target_link_uri || !client_id) {
     return res.status(400).json({
@@ -48,20 +42,38 @@ app.post("/lti/login", (req, res) => {
     });
   }
 
+  const platform = platforms.canvas;
+
+  const state = crypto.randomBytes(16).toString("hex");
+  const nonce = crypto.randomBytes(16).toString("hex");
+
   req.session.ltiLogin = {
     iss,
     login_hint,
     target_link_uri,
     lti_message_hint,
     client_id,
+    state,
+    nonce,
     createdAt: new Date().toISOString(),
   };
 
-  res.json({
-    message: "LTI login request received",
-    nextStep: "Redirect user to LMS authorization endpoint",
-    data: req.session.ltiLogin,
-  });
+  const redirectUrl = new URL(platform.authUrl);
+
+  redirectUrl.searchParams.set("scope", "openid");
+  redirectUrl.searchParams.set("response_type", "id_token");
+  redirectUrl.searchParams.set("client_id", client_id);
+  redirectUrl.searchParams.set("redirect_uri", target_link_uri);
+  redirectUrl.searchParams.set("login_hint", login_hint);
+  redirectUrl.searchParams.set("state", state);
+  redirectUrl.searchParams.set("nonce", nonce);
+  redirectUrl.searchParams.set("prompt", "none");
+
+  if (lti_message_hint) {
+    redirectUrl.searchParams.set("lti_message_hint", lti_message_hint);
+  }
+
+  res.redirect(redirectUrl.toString());
 });
 
 // Step 2 placeholder: LMS sends ID token here
