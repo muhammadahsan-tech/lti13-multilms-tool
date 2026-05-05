@@ -1,3 +1,7 @@
+import Link from "next/link";
+
+
+
 export default function LaunchPage() {
   return (
     <main className="min-h-screen bg-slate-100 p-10">
@@ -16,26 +20,26 @@ export default function LaunchPage() {
         </p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <a
-            href="/instructor"
-            className="rounded-xl border p-6 hover:bg-slate-50"
-          >
-            <h2 className="text-xl font-semibold">Instructor Dashboard</h2>
-            <p className="mt-2 text-slate-600">
-              View launches, completions, and grade activity.
-            </p>
-          </a>
+        <Link
+          href="/instructor"
+          className="rounded-xl border p-6 hover:bg-slate-50 block"
+        >
+          <h2 className="text-xl font-semibold">Instructor Dashboard</h2>
+          <p className="mt-2 text-slate-600">
+            View launches, completions, and grade activity.
+          </p>
+        </Link>
 
-          <a
-            href="/student"
-            className="rounded-xl border p-6 hover:bg-slate-50"
-          >
-            <h2 className="text-xl font-semibold">Student Activity</h2>
-            <p className="mt-2 text-slate-600">
-              Complete a learning activity and submit a simulated score.
-            </p>
-          </a>
-        </div>
+        <Link
+          href="/student"
+          className="rounded-xl border p-6 hover:bg-slate-50 block"
+        >
+          <h2 className="text-xl font-semibold">Student Activity</h2>
+          <p className="mt-2 text-slate-600">
+            Complete a learning activity and submit a simulated score.
+          </p>
+        </Link>
+      </div>
       </section>
     </main>
   );
