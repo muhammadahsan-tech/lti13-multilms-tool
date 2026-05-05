@@ -78,85 +78,60 @@ app.post("/lti/login", (req, res) => {
   res.redirect(redirectUrl.toString());
 });
 
+app.get("/simulate-jwt-launch", (req, res) => {
+  const role = req.query.role || "Instructor";
 
-app.post("/lti/launch", (req, res) => {
-  const idToken = req.body.id_token;
-
-  if (!idToken) {
-    return res.status(400).send("Missing id_token");
-  }
-
-  try {
-    const decoded = jwt.decode(idToken, { complete: true });
-
-    console.log("Decoded LTI Token:", decoded);
-
-    const payload = decoded.payload;
-
-    res.send(`
-      <h1>🚀 REAL LTI Launch</h1>
-      <p>User ID: ${payload.sub}</p>
-      <p>Issuer: ${payload.iss}</p>
-      <p>Audience: ${payload.aud}</p>
-      <p>Course Context: ${payload["https://purl.imsglobal.org/spec/lti/claim/context"]?.title}</p>
-    `);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Failed to decode LTI token");
-  }
-});
-
-app.get("/test-launch", (req, res) => {
-  const user = {
+  const ltiPayload = {
+    iss: "https://canvas.instructure.com",
+    aud: "demo-client-id-123",
+    sub: "user-12345",
     name: "Muhammad Ahsan",
-    role: req.query.role || "Instructor",
+    email: "dev.muhammadahsan@outlook.com",
+    "https://purl.imsglobal.org/spec/lti/claim/context": {
+      id: "course-14742071",
+      title: "LTI 1.3 Portfolio Test Course",
+      type: ["CourseSection"],
+    },
+    "https://purl.imsglobal.org/spec/lti/claim/roles": [
+      `http://purl.imsglobal.org/vocab/lis/v2/membership#${role}`,
+    ],
+    "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
+      id: "resource-001",
+      title: "LTI Learning Activity",
+    },
   };
 
-  const course = {
-    name: "LTI 1.3 Portfolio Test Course",
-  };
+  const token = jwt.sign(ltiPayload, "demo-secret", {
+    algorithm: "HS256",
+    expiresIn: "1h",
+  });
 
-  const isInstructor = user.role.toLowerCase() === "instructor";
+  const decoded = jwt.decode(token);
 
   res.send(`
     <html>
       <head>
-        <title>LTI 1.3 Learning Tool</title>
+        <title>Simulated LTI JWT Launch</title>
         <style>
-          body { font-family: Arial, sans-serif; background:#f6f8fb; margin:0; padding:40px; }
-          .card { background:white; border-radius:16px; padding:30px; max-width:850px; box-shadow:0 10px 30px rgba(0,0,0,.08); }
+          body { font-family: Arial, sans-serif; background:#f6f8fb; padding:40px; }
+          .card { background:white; border-radius:16px; padding:30px; max-width:950px; box-shadow:0 10px 30px rgba(0,0,0,.08); }
+          pre { background:#0f172a; color:#e2e8f0; padding:20px; border-radius:12px; overflow:auto; }
           .badge { display:inline-block; padding:6px 12px; border-radius:999px; background:#e8f1ff; color:#1f5fbf; font-weight:bold; }
-          .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:24px; }
-          .metric { background:#f1f5f9; padding:18px; border-radius:12px; }
-          .metric h3 { margin:0; font-size:28px; }
-          .metric p { margin:6px 0 0; color:#555; }
         </style>
       </head>
       <body>
         <div class="card">
-          <span class="badge">${user.role} View</span>
-          <h1>🚀 LTI 1.3 Launch Successful</h1>
-          <p><strong>User:</strong> ${user.name}</p>
-          <p><strong>Course:</strong> ${course.name}</p>
+          <span class="badge">Simulated LTI 1.3 JWT</span>
+          <h1>🚀 JWT Launch Simulation</h1>
+          <p><strong>User:</strong> ${decoded.name}</p>
+          <p><strong>Role:</strong> ${role}</p>
+          <p><strong>Course:</strong> ${decoded["https://purl.imsglobal.org/spec/lti/claim/context"].title}</p>
 
-          ${
-            isInstructor
-              ? `
-                <h2>Instructor Dashboard</h2>
-                <div class="grid">
-                  <div class="metric"><h3>24</h3><p>Total Launches</p></div>
-                  <div class="metric"><h3>86%</h3><p>Avg Score</p></div>
-                  <div class="metric"><h3>18</h3><p>Completions</p></div>
-                </div>
-              `
-              : `
-                <h2>Student Activity</h2>
-                <p>Welcome to your LMS-connected learning activity.</p>
-                <button style="padding:12px 18px;border:0;border-radius:10px;background:#111;color:white;">
-                  Start Activity
-                </button>
-              `
-          }
+          <h2>Signed JWT</h2>
+          <pre>${token}</pre>
+
+          <h2>Decoded JWT Payload</h2>
+          <pre>${JSON.stringify(decoded, null, 2)}</pre>
         </div>
       </body>
     </html>
