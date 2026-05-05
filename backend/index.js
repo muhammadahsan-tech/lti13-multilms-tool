@@ -138,6 +138,24 @@ app.get("/simulate-jwt-launch", (req, res) => {
   `);
 });
 
+app.post("/grade", (req, res) => {
+  const { userId, score } = req.body;
+
+  if (!userId || score === undefined) {
+    return res.status(400).json({ error: "Missing userId or score" });
+  }
+
+  console.log("Grade received:", { userId, score });
+
+  res.json({
+    message: "Grade recorded (simulated)",
+    userId,
+    score,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+
 app.get("/test-jwt", (req, res) => {
   const fakeJwtPayload = {
     sub: "user-123",
@@ -155,6 +173,7 @@ app.get("/test-jwt", (req, res) => {
 
   res.json(fakeJwtPayload);
 });
+
 
 app.listen(3001, () => {
   console.log("Backend running on port 3001");
