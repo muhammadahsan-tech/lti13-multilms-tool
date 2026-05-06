@@ -34,14 +34,11 @@ To integrate an LTI tool, the LMS provides:
 
 Example:
 
-
 Issuer: https://canvas.instructure.com
 
 JWKS URL: https://canvas.instructure.com/api/lti/security/jwks
 
 Auth URL: https://canvas.instructure.com/api/lti/authorize_redirect
-
-
 ---
 
 ## 🟢 Required Configuration from Tool (This App)
@@ -86,3 +83,31 @@ Your LTI tool must expose:
     "Instructor"
   ]
 }
+```
+
+## ✅ Current Working Demo
+
+The project currently demonstrates an end-to-end LMS-style workflow:
+
+1. Student opens the LTI activity
+2. Student completes the activity
+3. Frontend sends score to backend
+4. Backend records grade submission
+5. Instructor dashboard displays submitted grades
+
+### Demo Flow
+
+Student Activity:
+
+```text
+http://localhost:3000/student
+
+Instructor Dashboard:
+
+http://localhost:3000/instructor
+
+Backend APIs:
+
+POST /grade
+GET /grades
+```
