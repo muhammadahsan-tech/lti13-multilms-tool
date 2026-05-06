@@ -138,21 +138,29 @@ app.get("/simulate-jwt-launch", (req, res) => {
   `);
 });
 
+let grades = []; // 👈 add this at top
+
 app.post("/grade", (req, res) => {
   const { userId, score } = req.body;
 
-  if (!userId || score === undefined) {
-    return res.status(400).json({ error: "Missing userId or score" });
-  }
-
-  console.log("Grade received:", { userId, score });
-
-  res.json({
-    message: "Grade recorded (simulated)",
+  const record = {
     userId,
     score,
     timestamp: new Date().toISOString(),
+  };
+
+  grades.push(record); // 👈 store it
+
+  console.log("Grade received:", record);
+
+  res.json({
+    message: "Grade recorded successfully",
+    record,
   });
+});
+
+app.get("/grades", (req, res) => {
+  res.json(grades);
 });
 
 
