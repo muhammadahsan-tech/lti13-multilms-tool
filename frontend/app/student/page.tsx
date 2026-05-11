@@ -49,14 +49,16 @@ export default function StudentPage() {
 
   return (
     <main className="min-h-screen bg-slate-100 p-10">
-      <section className="max-w-3xl rounded-2xl bg-white p-8 shadow">
+      <section className="max-w-3xl rounded-2xl bg-white p-8 shadow text-slate-900">
         <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
           Student View
         </span>
 
-        <h1 className="mt-6 text-4xl font-bold">🎓 Student Activity</h1>
+        <h1 className="mt-6 text-4xl font-bold text-slate-900">
+          🎓 Student Activity
+        </h1>
 
-        <p className="mt-4 text-slate-600">
+        <p className="mt-4 text-slate-700">
           Complete this LMS-connected activity and submit a simulated LTI
           Advantage AGS score to the backend.
         </p>
@@ -70,7 +72,7 @@ export default function StudentPage() {
         </button>
 
         {result && (
-          <p className="mt-6 rounded-xl bg-slate-100 p-4 font-medium">
+          <p className="mt-6 rounded-xl bg-slate-100 p-4 font-medium text-slate-800">
             {result}
           </p>
         )}
