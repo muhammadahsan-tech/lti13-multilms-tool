@@ -14,7 +14,7 @@ export default function StudentPage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/grade`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/ags/scores`,
         {
           method: "POST",
           headers: {
@@ -22,7 +22,11 @@ export default function StudentPage() {
           },
           body: JSON.stringify({
             userId: "user-12345",
-            score,
+            lineItemId: "lineitem-001",
+            scoreGiven: score,
+            scoreMaximum: 100,
+            activityProgress: "Completed",
+            gradingProgress: "FullyGraded",
           }),
         }
       );
@@ -30,12 +34,14 @@ export default function StudentPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to submit score");
+        throw new Error(data.error || "Failed to submit AGS score");
       }
 
-      setResult(`Score submitted successfully: ${data.score}%`);
+      setResult(
+        `AGS score submitted: ${data.scoreRecord.scoreGiven}/${data.scoreRecord.scoreMaximum} — ${data.scoreRecord.gradingProgress}`
+      );
     } catch (error) {
-      setResult("Error submitting score");
+      setResult("Error submitting AGS score");
     } finally {
       setLoading(false);
     }
@@ -51,8 +57,8 @@ export default function StudentPage() {
         <h1 className="mt-6 text-4xl font-bold">🎓 Student Activity</h1>
 
         <p className="mt-4 text-slate-600">
-          Complete this LMS-connected activity and submit a simulated score to
-          the backend grade service.
+          Complete this LMS-connected activity and submit a simulated LTI
+          Advantage AGS score to the backend.
         </p>
 
         <button

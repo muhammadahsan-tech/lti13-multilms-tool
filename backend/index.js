@@ -182,6 +182,49 @@ app.get("/test-jwt", (req, res) => {
   res.json(fakeJwtPayload);
 });
 
+let lineItems = [
+  {
+    id: "lineitem-001",
+    label: "LTI Learning Activity",
+    scoreMaximum: 100,
+    resourceId: "resource-001",
+  },
+];
+
+let scores = [];
+
+app.get("/ags/lineitems", (req, res) => {
+  res.json(lineItems);
+});
+
+app.post("/ags/scores", (req, res) => {
+  const { userId, lineItemId, scoreGiven, scoreMaximum, activityProgress, gradingProgress } = req.body;
+
+  if (!userId || !lineItemId || scoreGiven === undefined) {
+    return res.status(400).json({ error: "Missing required score fields" });
+  }
+
+  const scoreRecord = {
+    userId,
+    lineItemId,
+    scoreGiven,
+    scoreMaximum: scoreMaximum || 100,
+    activityProgress: activityProgress || "Completed",
+    gradingProgress: gradingProgress || "FullyGraded",
+    timestamp: new Date().toISOString(),
+  };
+
+  scores.push(scoreRecord);
+
+  res.json({
+    message: "AGS score submitted successfully",
+    scoreRecord,
+  });
+});
+
+app.get("/ags/scores", (req, res) => {
+  res.json(scores);
+});
 
 app.listen(3001, () => {
   console.log("Backend running on port 3001");
